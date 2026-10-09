@@ -88,60 +88,90 @@ export class Game {
         this.floatingCoins = [];
 
         if (levelNumber === 1) {
-            // Posicionamento ajustado para não spawnar dentro das pirâmides ou blocos
             this.enemies = [
                 new Enemy(700, 380),
                 new Enemy(900, 380),
                 new Enemy(1050, 380),
-                new PiranhaPlant(38 * 32, 10 * 32),  // Cano col 38
+                new PiranhaPlant(28 * 32, 11 * 32),
                 new Enemy(1300, 380),
+                new PiranhaPlant(38 * 32, 10 * 32),
                 new Enemy(1420, 380),
-                new Koopa(1550, 360),
-                new PiranhaPlant(46 * 32, 9 * 32),   // Cano col 46
-                new PiranhaPlant(57 * 32, 9 * 32),   // Cano col 57
+                new PiranhaPlant(46 * 32, 9 * 32),
+                new Koopa(1550, 368),
+                new PiranhaPlant(57 * 32, 9 * 32),
                 new Enemy(2000, 380),
                 new Enemy(2150, 380),
-                new Koopa(2350, 360),
+                new Koopa(2350, 368),
                 new Enemy(2600, 380),
                 new Enemy(2800, 380),
+                new PiranhaPlant(105 * 32, 10 * 32),
+                new PiranhaPlant(112 * 32, 11 * 32),
                 new Enemy(3000, 380),
-                new Enemy(3300, 380),                // Reposicionado para fora da escada
+                new Enemy(3300, 380),
                 new Enemy(3600, 380),
-                new Koopa(3750, 360),
+                new Koopa(3750, 368),
                 new Enemy(4100, 380),
-                new Enemy(4300, 380),
+                new PiranhaPlant(163 * 32, 11 * 32),
+                new PiranhaPlant(172 * 32, 10 * 32),
                 new Enemy(4800, 380),
-                new PiranhaPlant(163 * 32, 11 * 32), // Cano col 163
                 new Enemy(5300, 380),
                 new Enemy(5450, 380)
             ];
         } else if (levelNumber === 2) {
             this.enemies = [
-                new Koopa(350, 360),
-                new Enemy(500, 380),
-                new PiranhaPlant(640, 352),
-                new Enemy(720, 380),
-                new Enemy(900, 380),
-                new PiranhaPlant(896, 320),
-                new Koopa(1200, 360),
-                new Koopa(1400, 360),
-                new Enemy(1600, 380)
+                new Enemy(400, 380),
+                new PiranhaPlant(18 * 32, 11 * 32),
+                new Koopa(700, 368),
+                new PiranhaPlant(26 * 32, 10 * 32),
+                new Enemy(1000, 380),
+                new Enemy(1150, 380),
+                new PiranhaPlant(42 * 32, 9 * 32),
+                new Koopa(1500, 368),
+                new PiranhaPlant(56 * 32, 10 * 32),
+                new Enemy(2000, 380),
+                new Enemy(2200, 380),
+                new PiranhaPlant(78 * 32, 11 * 32),
+                new Koopa(2700, 368),
+                new PiranhaPlant(92 * 32, 9 * 32),
+                new Enemy(3050, 380),
+                new Enemy(3450, 380),
+                new PiranhaPlant(118 * 32, 10 * 32),
+                new Koopa(4000, 368),
+                new PiranhaPlant(135 * 32, 11 * 32),
+                new Enemy(4600, 380),
+                new PiranhaPlant(160 * 32, 9 * 32),
+                new Enemy(5200, 380)
             ];
         } else if (levelNumber === 3) {
             this.enemies = [
-                new Enemy(300, 380),
-                new Koopa(500, 360),
-                new Enemy(750, 380),
-                new Koopa(1000, 360),
-                new Enemy(1250, 380),
-                new Koopa(1500, 360),
-                new Enemy(1700, 380)
+                new Enemy(350, 380),
+                new Koopa(600, 368),
+                new Enemy(900, 380),
+                new PiranhaPlant(38 * 32, 10 * 32),
+                new Koopa(1400, 368),
+                new PiranhaPlant(56 * 32, 9 * 32),
+                new Enemy(1600, 380),
+                new Koopa(2450, 368),
+                new PiranhaPlant(90 * 32, 11 * 32),
+                new PiranhaPlant(100 * 32, 9 * 32),
+                new Enemy(3300, 380),
+                new Koopa(3600, 368),
+                new PiranhaPlant(138 * 32, 10 * 32),
+                new Enemy(4600, 380),
+                new PiranhaPlant(170 * 32, 11 * 32),
+                new Koopa(5350, 368)
             ];
         }
 
         this.mushrooms = [];
         this.fireFlowers = [];
         this.startTimer();
+
+        // Inicia a música tema correspondente ao nível carregado
+        if (this.audio) {
+            this.audio.startBGM(levelNumber);
+        }
+
         this.gameState = 'PLAYING';
     }
 
@@ -188,6 +218,7 @@ export class Game {
         if (this.lives <= 0) {
             if (this.timerInterval) clearInterval(this.timerInterval);
             this.gameState = 'GAMEOVER';
+            if (this.audio) this.audio.stopBGM();
         } else {
             this.loadLevel(this.currentLevel);
         }
@@ -200,6 +231,7 @@ export class Game {
         this.gameState = 'MENU';
         this.flagCompleted = false;
         this.deathDelay = 0;
+        if (this.audio) this.audio.stopBGM();
     }
 
     handlePlayerDamage() {
@@ -218,10 +250,16 @@ export class Game {
 
     update() {
         if (this.gameState === 'MENU') {
-            if (this.input.isDown('Enter') || this.input.isDown(' ')) this.loadLevel(1);
+            if (this.input.isDown('Enter') || this.input.isDown(' ')) {
+                if (this.audio) this.audio.init();
+                this.loadLevel(1);
+            }
         }
         else if (this.gameState === 'GAMEOVER' || this.gameState === 'VICTORY') {
-            if (this.input.isDown('Enter') || this.input.isDown(' ')) this.resetGame();
+            if (this.input.isDown('Enter') || this.input.isDown(' ')) {
+                if (this.audio) this.audio.init();
+                this.resetGame();
+            }
         }
         else if (this.gameState === 'FLAG') {
             if (this.player) {
@@ -238,6 +276,7 @@ export class Game {
                         } else {
                             if (this.timerInterval) clearInterval(this.timerInterval);
                             this.gameState = 'VICTORY';
+                            if (this.audio) this.audio.stopBGM();
                         }
                     }, 1200);
                 }

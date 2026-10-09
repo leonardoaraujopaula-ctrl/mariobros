@@ -3,7 +3,7 @@ export class Koopa {
         this.x = x;
         this.y = y;
         this.width = 32;
-        this.height = 48;
+        this.height = 48; // Altura em pé original
         this.vx = -1;
         this.vy = 0;
         this.isGrounded = false;
@@ -52,7 +52,7 @@ export class Koopa {
             this.state = 'SHELL';
             this.isShell = true;
             this.height = 32;
-            this.y += 16;
+            this.y += 16; // Compensa a transição de 48px para 32px
             this.vx = 0;
         } else if (this.state === 'SHELL') {
             this.state = 'SLIDING';
@@ -88,13 +88,18 @@ export class Koopa {
 
         this.vy += 0.5;
 
+        // Movimento horizontal e detecção de bate-volta na parede/degrau
         this.x += this.vx;
         if (tileMap && typeof tileMap.checkXCollision === 'function') {
             const oldVx = this.vx;
             tileMap.checkXCollision(this);
-            if (this.vx === 0) this.vx = -oldVx;
+
+            if (this.vx === 0) {
+                this.vx = -oldVx;
+            }
         }
 
+        // Movimento vertical
         this.y += this.vy;
         if (tileMap && typeof tileMap.checkYCollision === 'function') {
             tileMap.checkYCollision(this);
